@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "author": "SAMAD",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-esp32-devkit-v1", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    {
+      "type": "wokwi-dht22",
+      "id": "dht1",
+      "top": -28.5,
+      "left": 177,
+      "attrs": { "temperature": "24", "humidity": "45" }
+    },
+    {
+      "type": "wokwi-analog-joystick",
+      "id": "joystick1",
+      "top": -118.4,
+      "left": -96,
+      "rotate": 90,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-slide-potentiometer",
+      "id": "pot1",
+      "top": 80.05,
+      "left": -48,
+      "rotate": 90,
+      "attrs": { "value": "800" }
+    }
+  ],
+  "connections": [
+    [ "esp:TX0", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX0", "$serialMonitor:TX", "", [] ],
+    [ "dht1:VCC", "esp:3V3", "red", [ "v0" ] ],
+    [ "dht1:GND", "esp:GND.1", "black", [ "v0" ] ],
+    [ "dht1:SDA", "esp:D15", "green", [ "v0" ] ],
+    [ "joystick1:VCC", "esp:3V3", "red", [ "h0" ] ],
+    [ "joystick1:GND", "esp:GND.2", "black", [ "h0" ] ],
+    [ "joystick1:VERT", "esp:D34", "blue", [ "h0" ] ],
+    [ "pot1:VCC", "esp:3V3", "red", [ "h0" ] ],
+    [ "pot1:GND", "esp:GND.1", "black", [ "h0" ] ],
+    [ "pot1:SIG", "esp:D35", "yellow", [ "h0" ] ]
+  ],
+  "dependencies": {}
+}

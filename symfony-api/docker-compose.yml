@@ -1,0 +1,23 @@
+services:
+  mqtt:
+    image: eclipse-mosquitto:2
+    container_name: airentinel_mqtt
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_logs:/mosquitto/log
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 5 mosquitto_sub -h localhost -p 1883 -t '$$SYS/#' -C 1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mosquitto_data:
+    driver: local
+  mosquitto_logs:
+    driver: local

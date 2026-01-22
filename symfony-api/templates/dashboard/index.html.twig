@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zephyrus - Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .stat-unit {
+            font-size: 1rem;
+            color: #999;
+            margin-left: 5px;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        
+        .chart-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .status-good { background: #10b981; color: white; }
+        .status-warning { background: #f59e0b; color: white; }
+        .status-danger { background: #ef4444; color: white; }
+        
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            padding: 40px;
+        }
+        
+        .last-update {
+            text-align: center;
+            color: white;
+            margin-top: 20px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Zephyrus</h1>
+            <p class="subtitle">Smart Air Quality & Safety Monitoring System</p>
+        </header>
+
+        <div class="stats-grid" id="stats">
+            {% if latestReading %}
+                <div class="stat-card">
+                    <div class="stat-label">Temperature</div>
+                    <div class="stat-value">{{ latestReading.temperature }}<span class="stat-unit">°C</span></div>
+                    <span class="status-badge {% if latestReading.temperature > 30 %}status-danger{% elseif latestReading.temperature > 25 %}status-warning{% else %}status-good{% endif %}">
+                        {% if latestReading.temperature > 30 %}Too Hot{% elseif latestReading.temperature > 25 %}Warm{% else %}Normal{% endif %}
+                    </span>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Humidity</div>
+                    <div class="stat-value">{{ latestReading.humidity }}<span class="stat-unit">%</span></div>
+                    <span class="status-badge status-good">Normal</span>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">CO₂ Level</div>
+                    <div class="stat-value">{{ latestReading.co2 }}<span class="stat-unit">ppm</span></div>
+                    <span class="status-badge {% if latestReading.co2 > 1000 %}status-danger{% elseif latestReading.co2 > 800 %}status-warning{% else %}status-good{% endif %}">
+                        {% if latestReading.co2 > 1000 %}High{% elseif latestReading.co2 > 800 %}Elevated{% else %}Good{% endif %}
+                    </span>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Noise Level</div>
+                    <div class="stat-value">{{ latestReading.noise }}<span class="stat-unit">dB</span></div>
+                    <span class="status-badge {% if latestReading.noise > 70 %}status-danger{% elseif latestReading.noise > 50 %}status-warning{% else %}status-good{% endif %}">
+                        {% if latestReading.noise > 70 %}Loud{% elseif latestReading.noise > 50 %}Moderate{% else %}Quiet{% endif %}
+                    </span>
+                </div>
+            {% else %}
+                <div class="loading">No sensor data yet. Make sure the simulator is running!</div>
+            {% endif %}
+        </div>
+
+        <div class="chart-container">
+            <h2 class="chart-title">Real-Time Sensor Data (Last 50 Readings)</h2>
+            <canvas id="sensorChart"></canvas>
+        </div>
+
+        <p class="last-update">Total Readings: <strong>{{ totalReadings }}</strong> | Auto-refreshing every 5 seconds</p>
+    </div>
+
+    <script>
+        async function updateChart() {
+            try {
+                const response = await fetch('/api/readings/chart');
+                const data = await response.json();
+                
+                if (sensorChart) {
+                    sensorChart.data.labels = data.labels;
+                    sensorChart.data.datasets = data.datasets;
+                    sensorChart.update();
+                }
+            } catch (error) {
+                console.error('Error fetching chart data:', error);
+            }
+        }
+        
+        async function updateStats() {
+            try {
+                const response = await fetch('/api/readings/latest');
+                const readings = await response.json();
+                
+                if (readings.length > 0) {
+                    const latest = readings[0];
+                    console.log('Latest reading:', latest);
+                }
+            } catch (error) {
+                console.error('Error fetching latest readings:', error);
+            }
+        }
+        
+        const ctx = document.getElementById('sensorChart').getContext('2d');
+        const sensorChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: []
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        updateChart();
+        updateStats();
+        
+        setInterval(() => {
+            updateChart();
+            updateStats();
+        }, 5000);
+    </script>
+</body>
+</html>

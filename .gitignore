@@ -1,0 +1,53 @@
+# Symfony
+/symfony-api/var/
+/symfony-api/vendor/
+/symfony-api/.env.local
+/symfony-api/.env.local.php
+/symfony-api/.env.*.local
+/symfony-api/public/bundles/
+/symfony-api/var/cache/*
+/symfony-api/var/log/*
+
+# Database
+*.db
+*.sqlite
+*.sql.gz
+
+# Docker
+/symfony-api/docker-compose.override.yml
+.docker/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+*.egg-info/
+
+# Node (if using frontend build tools)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
