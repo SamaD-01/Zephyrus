@@ -1,7 +1,26 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: zephyrus_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-zephyrus}
+      POSTGRES_USER: ${POSTGRES_USER:-zephyrus}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-zephyrus} -d ${POSTGRES_DB:-zephyrus}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   mqtt:
     image: eclipse-mosquitto:2
-    container_name: airentinel_mqtt
+    container_name: zephyrus_mqtt
     restart: unless-stopped
     ports:
       - "1883:1883"
@@ -17,6 +36,8 @@ services:
       retries: 5
 
 volumes:
+  postgres_data:
+    driver: local
   mosquitto_data:
     driver: local
   mosquitto_logs:
