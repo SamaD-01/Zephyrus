@@ -15,9 +15,16 @@ class DashboardController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function index(SensorReadingRepository $repository): Response
     {
-        $latestReading = $repository->findOneBy([], ['timestamp' => 'DESC']);
-        $totalReadings = $repository->count([]);
         
+        $user = $this->getUser();
+
+        $latestReading = $repository->findOneBy(
+            ['user' => $user], 
+            ['timestamp' => 'DESC']
+        );
+        
+        $totalReadings = $repository->count(['user' => $user]);
+    
         return $this->render('dashboard/index.html.twig', [
             'latestReading' => $latestReading,
             'totalReadings' => $totalReadings,
@@ -25,9 +32,16 @@ class DashboardController extends AbstractController
     }
 
     #[Route('/api/readings/latest', name: 'api_readings_latest', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
     public function latestReadings(SensorReadingRepository $repository): JsonResponse
     {
-        $readings = $repository->findBy([], ['timestamp' => 'DESC'], 20);
+        $user = $this->getUser();
+
+        $readings = $repository->findBy(
+            ['user' => $user], 
+            ['timestamp' => 'DESC'], 
+            20
+        );
         
         $data = array_map(function($reading) {
             return [
@@ -45,9 +59,18 @@ class DashboardController extends AbstractController
     }
 
     #[Route('/api/readings/chart', name: 'api_readings_chart', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
     public function chartData(SensorReadingRepository $repository): JsonResponse
     {
-        $readings = $repository->findBy([], ['timestamp' => 'ASC'], 50);
+        $user = $this->getUser();
+
+        $readings = $repository->createQueryBuilder('s')
+            ->where('s.user = :user')
+            ->setParameter('user', $user)
+            ->orderBy('s.timestamp', 'ASC')
+            ->setMaxResults(50)
+            ->getQuery()
+            ->getResult();
         
         $labels = [];
         $temperatures = [];

@@ -7,6 +7,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -33,6 +35,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     private ?string $password = null;
+
+    #[ORM\OneToMany(targetEntity: SensorReading::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $sensorReadings;
+
+    public function __construct()
+    {
+        $this->sensorReadings = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -95,6 +105,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->password = $password;
 
+        return $this;
+    }
+
+    public function getSensorReadings(): Collection
+    {
+        return $this->sensorReadings;
+    }
+
+    public function addSensorReading(SensorReading $sensorReading): static
+    {
+        if (!$this->sensorReadings->contains($sensorReading)) {
+            $this->sensorReadings->add($sensorReading);
+            $sensorReading->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeSensorReading(SensorReading $sensorReading): static
+    {
+        if ($this->sensorReadings->removeElement($sensorReading)) {
+            if ($sensorReading->getUser() === $this) {
+                $sensorReading->setUser(null);
+            }
+        }
         return $this;
     }
 

@@ -11,6 +11,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use App\Repository\UserRepository;
 
 #[AsCommand(
     name: 'mqtt:subscribe',
@@ -19,7 +20,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class MqttSubscribeCommand extends Command
 {
     public function __construct(
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
+        private UserRepository $userRepository
     ) {
         parent::__construct();
     }
@@ -28,6 +30,12 @@ class MqttSubscribeCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
         $io->title('Zephyrus MQTT Subscriber');
+        $user = $this->userRepository->findOneBy([]);
+        if (!$user) {
+            $io->error('No user found! Please register a user first.');
+            return Command::FAILURE;
+        }
+        $io->info("Assigning sensor readings to user: {$user->getEmail()}");
         $io->info('Connecting to MQTT broker at localhost:1883...');
 
         $mqtt = new MqttClient('127.0.0.1', 1883, 'symfony-subscriber');
@@ -43,7 +51,7 @@ class MqttSubscribeCommand extends Command
             $io->success('Connected to MQTT broker!');
             $io->info('Listening for sensor data on topic: zephyrus/sensors/#');
 
-            $mqtt->subscribe('zephyrus/sensors/#', function (string $topic, string $message) use ($io) {
+            $mqtt->subscribe('zephyrus/sensors/#', function (string $topic, string $message) use ($io, $user) {
                 $io->writeln("Received from {$topic}: {$message}");
                 
                 try {
@@ -61,6 +69,7 @@ class MqttSubscribeCommand extends Command
                     $reading->setCo2($data['co2'] ?? 0);
                     $reading->setNoise($data['noise'] ?? 0.0);
                     $reading->setTimestamp(new \DateTimeImmutable($data['timestamp'] ?? 'now'));
+                    $reading->setUser($user);
 
                     $this->entityManager->persist($reading);
                     $this->entityManager->flush();

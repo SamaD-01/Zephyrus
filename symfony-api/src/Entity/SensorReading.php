@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\SensorReadingRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\User;
 
 #[ORM\Entity(repositoryClass: SensorReadingRepository::class)]
 class SensorReading
@@ -30,6 +31,10 @@ class SensorReading
 
     #[ORM\Column]
     private ?\DateTimeImmutable $timestamp = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'sensorReadings')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
 
     public function getId(): ?int
     {
@@ -105,6 +110,17 @@ class SensorReading
     {
         $this->timestamp = $timestamp;
 
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
         return $this;
     }
 }
