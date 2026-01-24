@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Zephyrus</title>
+    <title>Login - Zephyrus</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -55,8 +55,7 @@
         }
         
         input[type="email"],
-        input[type="password"],
-        input[type="text"] {
+        input[type="password"] {
             width: 100%;
             padding: 12px 15px;
             border: 2px solid #e0e0e0;
@@ -66,8 +65,7 @@
         }
         
         input[type="email"]:focus,
-        input[type="password"]:focus,
-        input[type="text"]:focus {
+        input[type="password"]:focus {
             outline: none;
             border-color: #667eea;
         }
@@ -76,6 +74,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            margin-bottom: 20px;
         }
         
         .checkbox-group input[type="checkbox"] {
@@ -116,52 +115,79 @@
             text-decoration: underline;
         }
         
-        .error-message {
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-error {
             background: #fee;
             border: 1px solid #fcc;
             color: #c00;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background: #efe;
+            border: 1px solid #cfc;
+            color: #090;
         }
     </style>
 </head>
 <body>
     <div class="auth-container">
         <div class="auth-header">
-            <h1>Join Zephyrus</h1>
-            <p>Create your account to start monitoring</p>
+            <h1>Welcome Back</h1>
+            <p>Sign in to access your dashboard</p>
         </div>
 
-        {{ form_start(registrationForm) }}
+        {% if error %}
+            <div class="alert alert-error">
+                {{ error.messageKey|trans(error.messageData, 'security') }}
+            </div>
+        {% endif %}
+
+        {% if app.user %}
+            <div class="alert alert-success">
+                You are logged in as {{ app.user.userIdentifier }}
+            </div>
+        {% endif %}
+
+        <form method="post">
             <div class="form-group">
-                {{ form_label(registrationForm.email) }}
-                {{ form_widget(registrationForm.email) }}
-                {{ form_errors(registrationForm.email) }}
+                <label for="inputEmail">Email</label>
+                <input type="email" 
+                       value="{{ last_username }}" 
+                       name="_username" 
+                       id="inputEmail" 
+                       class="form-control" 
+                       autocomplete="email" 
+                       required 
+                       autofocus>
             </div>
 
             <div class="form-group">
-                {{ form_label(registrationForm.plainPassword.first, 'Password') }}
-                {{ form_widget(registrationForm.plainPassword.first) }}
-                {{ form_errors(registrationForm.plainPassword.first) }}
+                <label for="inputPassword">Password</label>
+                <input type="password" 
+                       name="_password" 
+                       id="inputPassword" 
+                       class="form-control" 
+                       autocomplete="current-password" 
+                       required>
             </div>
 
-            <div class="form-group">
-                {{ form_label(registrationForm.plainPassword.second, 'Confirm Password') }}
-                {{ form_widget(registrationForm.plainPassword.second) }}
-                {{ form_errors(registrationForm.plainPassword.second) }}
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+            <div class="checkbox-group">
+                <input type="checkbox" name="_remember_me" id="remember_me">
+                <label for="remember_me">Remember me</label>
             </div>
 
-            <div class="form-group checkbox-group">
-                {{ form_widget(registrationForm.agreeTerms) }}
-                {{ form_label(registrationForm.agreeTerms, 'I agree to the terms and conditions') }}
-            </div>
-
-            <button type="submit" class="btn">Create Account</button>
-        {{ form_end(registrationForm) }}
+            <button class="btn" type="submit">Sign in</button>
+        </form>
 
         <div class="auth-footer">
-            Already have an account? <a href="{{ path('app_login') }}">Sign in</a>
+            Don't have an account? <a href="{{ path('app_register') }}">Create one</a>
         </div>
     </div>
 </body>
