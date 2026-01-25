@@ -14,7 +14,8 @@ class SensorReading
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    // #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, name: 'device_identifier')]
     private ?string $deviceId = null;
 
     #[ORM\Column]
@@ -35,6 +36,10 @@ class SensorReading
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'sensorReadings')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
+
+    #[ORM\ManyToOne(inversedBy: 'sensorReadings')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Device $device = null;
 
     public function getId(): ?int
     {
@@ -121,6 +126,17 @@ class SensorReading
     public function setUser(?User $user): static
     {
         $this->user = $user;
+        return $this;
+    }
+
+    public function getDevice(): ?Device
+    {
+        return $this->device;
+    }
+
+    public function setDevice(?Device $device): static
+    {
+        $this->device = $device;
         return $this;
     }
 }

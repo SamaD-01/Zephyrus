@@ -42,6 +42,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __construct()
     {
         $this->sensorReadings = new ArrayCollection();
+        $this->devices = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -141,5 +142,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $data["\0".self::class."\0password"] = hash('crc32c', $this->password);
 
         return $data;
+    }
+
+
+    #[ORM\OneToMany(targetEntity: Device::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $devices;
+
+    public function getDevices(): Collection
+    {
+        return $this->devices;
+    }
+
+    public function addDevice(Device $device): static
+    {
+        if (!$this->devices->contains($device)) {
+            $this->devices->add($device);
+            $device->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeDevice(Device $device): static
+    {
+        if ($this->devices->removeElement($device)) {
+            if ($device->getUser() === $this) {
+                $device->setUser(null);
+            }
+        }
+        return $this;
     }
 }
