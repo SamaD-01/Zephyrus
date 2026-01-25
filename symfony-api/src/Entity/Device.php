@@ -19,7 +19,7 @@ class Device
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
     private ?string $deviceId = null;
 
     #[ORM\Column(length: 255, nullable: true)]

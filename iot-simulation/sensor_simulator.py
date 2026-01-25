@@ -6,16 +6,19 @@ from datetime import datetime
 
 MQTT_BROKER = "localhost"
 MQTT_PORT = 1883
-MQTT_TOPIC = "zephyrus/sensors/simulator-001"
 
-DEVICE_ID = "simulator-sensor-001"
+DEVICE_ID = "sensor-001"
+DEVICE_NAME = "Living Room Sensor"
+
+MQTT_TOPIC = f"zephyrus/sensors/{DEVICE_ID}"
+
+BASE_TEMP = 22.0
+BASE_HUMIDITY = 45.0
+BASE_CO2 = 800
+BASE_NOISE = 40.0
 
 def generate_sensor_data():
-    base_temp = 22.0
-    base_humidity = 45.0
-    base_co2 = 800
-    base_noise = 40.0
-    
+
     temp_variation = random.uniform(-2, 2)
     humidity_variation = random.uniform(-5, 5)
     co2_variation = random.randint(-100, 100)
@@ -23,10 +26,10 @@ def generate_sensor_data():
     
     data = {
         "deviceId": DEVICE_ID,
-        "temperature": round(base_temp + temp_variation, 2),
-        "humidity": round(base_humidity + humidity_variation, 2),
-        "co2": base_co2 + co2_variation,
-        "noise": round(base_noise + noise_variation, 2),
+        "temperature": round(BASE_TEMP + temp_variation, 2),
+        "humidity": round(BASE_HUMIDITY + humidity_variation, 2),
+        "co2": BASE_CO2 + co2_variation,
+        "noise": round(BASE_NOISE + noise_variation, 2),
         "timestamp": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S+00:00")
     }
     
@@ -35,6 +38,7 @@ def generate_sensor_data():
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print("Connected to MQTT Broker!")
+        print(f"Device: {DEVICE_NAME} ({DEVICE_ID})")
         client.publish("zephyrus/status", "online")
     else:
         print(f"Failed to connect, return code {rc}")
@@ -42,6 +46,8 @@ def on_connect(client, userdata, flags, rc):
 def main():
     print("Zephyrus Sensor Simulator Starting...")
     print(f"Connecting to MQTT broker at {MQTT_BROKER}:{MQTT_PORT}")
+    print(f"Make sure device '{DEVICE_ID}' is registered in Zephyrus!")
+    print()
     
     client = mqtt.Client(client_id=DEVICE_ID)
     client.on_connect = on_connect
@@ -67,7 +73,7 @@ def main():
             else:
                 print(f"Failed to publish: {result.rc}")
             
-            time.sleep(5)  # Send data every 5 seconds
+            time.sleep(5)  
             
     except KeyboardInterrupt:
         print("\nStopping simulator...")

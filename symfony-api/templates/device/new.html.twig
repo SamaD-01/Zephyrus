@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Device - Zephyrus</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+        
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-help {
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 5px;
+        }
+        
+        .form-error {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+        
+        .form-section {
+            margin-top: 35px;
+            padding-top: 35px;
+            border-top: 2px solid #f0f0f0;
+        }
+        
+        .form-section-title {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .threshold-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+        }
+        
+        .btn {
+            padding: 14px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+        }
+        
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>📱 Add New Device</h1>
+            <p class="subtitle">Register a new IoT sensor to start monitoring</p>
+
+            {{ form_start(form) }}
+                <div class="form-group">
+                    {{ form_label(form.name) }}
+                    {{ form_widget(form.name) }}
+                    {{ form_errors(form.name) }}
+                </div>
+
+                <div class="form-group">
+                    {{ form_label(form.deviceId) }}
+                    {{ form_widget(form.deviceId) }}
+                    {{ form_help(form.deviceId) }}
+                    {{ form_errors(form.deviceId) }}
+                </div>
+
+                <div class="form-group">
+                    {{ form_label(form.location) }}
+                    {{ form_widget(form.location) }}
+                    {{ form_errors(form.location) }}
+                </div>
+
+                <div class="form-group">
+                    {{ form_label(form.description) }}
+                    {{ form_widget(form.description) }}
+                    {{ form_errors(form.description) }}
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">⚠️ Alert Thresholds (Optional)</div>
+                    <p class="form-help" style="margin-bottom: 20px;">Set custom alert thresholds for this device. Leave empty to use defaults.</p>
+                    
+                    <div class="threshold-grid">
+                        <div class="form-group">
+                            {{ form_label(form.maxTemperature) }}
+                            {{ form_widget(form.maxTemperature) }}
+                            {{ form_help(form.maxTemperature) }}
+                            {{ form_errors(form.maxTemperature) }}
+                        </div>
+
+                        <div class="form-group">
+                            {{ form_label(form.minTemperature) }}
+                            {{ form_widget(form.minTemperature) }}
+                            {{ form_help(form.minTemperature) }}
+                            {{ form_errors(form.minTemperature) }}
+                        </div>
+
+                        <div class="form-group">
+                            {{ form_label(form.maxCo2) }}
+                            {{ form_widget(form.maxCo2) }}
+                            {{ form_help(form.maxCo2) }}
+                            {{ form_errors(form.maxCo2) }}
+                        </div>
+
+                        <div class="form-group">
+                            {{ form_label(form.maxNoise) }}
+                            {{ form_widget(form.maxNoise) }}
+                            {{ form_help(form.maxNoise) }}
+                            {{ form_errors(form.maxNoise) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ path('device_index') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">💾 Register Device</button>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</body>
+</html>

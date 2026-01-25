@@ -126,6 +126,7 @@
             {% if app.user %}
                 <p style="margin-top: 15px; opacity: 0.9;">
                     Logged in as <strong>{{ app.user.email }}</strong> | 
+                    <a href="{{ path('device_index') }}" style="color: white; text-decoration: underline;">Manage Devices</a> |
                     <a href="{{ path('app_logout') }}" style="color: white; text-decoration: underline;">Logout</a>
                 </p>
             {% endif %}
