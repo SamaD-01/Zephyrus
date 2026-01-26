@@ -53,12 +53,16 @@ class Device
     #[ORM\Column(nullable: true)]
     private ?float $maxNoise = null;
 
+    #[ORM\OneToMany(targetEntity: Alert::class, mappedBy: 'device', orphanRemoval: true)]
+    private Collection $alerts;
+
 
     public function __construct()
     {
         $this->sensorReadings = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->isActive = true;
+        $this->alerts = new ArrayCollection();
     }
 
 
@@ -225,5 +229,31 @@ class Device
     public function __toString(): string
     {
         return $this->name ?? $this->deviceId ?? '';
+    }
+
+    
+    
+    public function getAlerts(): Collection
+    {
+        return $this->alerts;
+    }
+
+    public function addAlert(Alert $alert): static
+    {
+        if (!$this->alerts->contains($alert)) {
+            $this->alerts->add($alert);
+            $alert->setDevice($this);
+        }
+        return $this;
+    }
+
+    public function removeAlert(Alert $alert): static
+    {
+        if ($this->alerts->removeElement($alert)) {
+            if ($alert->getDevice() === $this) {
+                $alert->setDevice(null);
+            }
+        }
+        return $this;
     }
 }
