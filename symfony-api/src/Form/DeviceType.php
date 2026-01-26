@@ -59,16 +59,16 @@ class DeviceType extends AbstractType
                 'label' => 'Max Temperature Alert (°C)',
                 'required' => false,
                 'attr' => [
-                    'placeholder' => 'e.g., 30',
+                    'placeholder' => '30.0 (default)',
                     'step' => '0.1'
                 ],
-                'help' => 'Alert when temperature exceeds this value (leave empty for default: 30°C)'
+                'help' => 'Alert when temperature exceeds this value'
             ])
             ->add('minTemperature', NumberType::class, [
                 'label' => 'Min Temperature Alert (°C)',
                 'required' => false,
                 'attr' => [
-                    'placeholder' => 'e.g., 15',
+                    'placeholder' => '10.0 (default)',
                     'step' => '0.1'
                 ],
                 'help' => 'Alert when temperature falls below this value'
@@ -77,18 +77,18 @@ class DeviceType extends AbstractType
                 'label' => 'Max CO₂ Alert (ppm)',
                 'required' => false,
                 'attr' => [
-                    'placeholder' => 'e.g., 1000'
+                    'placeholder' => '1000 (default)'
                 ],
-                'help' => 'Alert when CO₂ exceeds this value (leave empty for default: 1000ppm)'
+                'help' => 'Alert when CO₂ exceeds this value'
             ])
             ->add('maxNoise', NumberType::class, [
                 'label' => 'Max Noise Alert (dB)',
                 'required' => false,
                 'attr' => [
-                    'placeholder' => 'e.g., 70',
+                    'placeholder' => '70.0 (default)',
                     'step' => '0.1'
                 ],
-                'help' => 'Alert when noise exceeds this value (leave empty for default: 70dB)'
+                'help' => 'Alert when noise exceeds this value'
             ])
         ;
     }

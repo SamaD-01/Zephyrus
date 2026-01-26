@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Device - Zephyrus</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .alert {
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+        
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        input:disabled {
+            background: #f5f5f5;
+            cursor: not-allowed;
+        }
+        
+        .form-help {
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 5px;
+        }
+        
+        .form-error {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+        
+        .form-section {
+            margin-top: 35px;
+            padding-top: 35px;
+            border-top: 2px solid #f0f0f0;
+        }
+        
+        .form-section-title {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .threshold-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+        }
+        
+        .btn {
+            padding: 14px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+        }
+        
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .danger-zone {
+            margin-top: 40px;
+            padding: 25px;
+            background: #fef2f2;
+            border: 2px solid #fecaca;
+            border-radius: 10px;
+        }
+        
+        .danger-zone h3 {
+            color: #991b1b;
+            margin-bottom: 15px;
+        }
+        
+        .danger-zone p {
+            color: #991b1b;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Edit Device</h1>
+            <p class="subtitle">Update device settings and thresholds</p>
+
+            <div class="alert alert-info">
+                <strong>ℹNote:</strong> Device ID cannot be changed after registration. To use a different ID, create a new device.
+            </div>
+
+            {{ form_start(form) }}
+                <div class="form-group">
+                    {{ form_label(form.name) }}
+                    {{ form_widget(form.name) }}
+                    {{ form_errors(form.name) }}
+                </div>
+
+                <div class="form-group">
+                    {{ form_label(form.deviceId) }}
+                    {{ form_widget(form.deviceId, {'disabled': true}) }}
+                    <p class="form-help">Device ID is locked and cannot be changed</p>
+                </div>
+
+                <div class="form-group">
+                    {{ form_label(form.location) }}
+                    {{ form_widget(form.location) }}
+                    {{ form_errors(form.location) }}
+                </div>
+
+                <div class="form-group">
+                    {{ form_label(form.description) }}
+                    {{ form_widget(form.description) }}
+                    {{ form_errors(form.description) }}
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">Alert Thresholds</div>
+                    <p class="form-help" style="margin-bottom: 20px;">
+                        <strong>Default values:</strong> Max Temp: 30°C, Min Temp: 10°C, Max CO₂: 1000ppm, Max Noise: 70dB
+                        <br>Leave empty to use defaults.
+                    </p>
+                    
+                    <div class="threshold-grid">
+                        <div class="form-group">
+                            {{ form_label(form.maxTemperature) }}
+                            {{ form_widget(form.maxTemperature) }}
+                            {{ form_help(form.maxTemperature) }}
+                            {{ form_errors(form.maxTemperature) }}
+                        </div>
+
+                        <div class="form-group">
+                            {{ form_label(form.minTemperature) }}
+                            {{ form_widget(form.minTemperature) }}
+                            {{ form_help(form.minTemperature) }}
+                            {{ form_errors(form.minTemperature) }}
+                        </div>
+
+                        <div class="form-group">
+                            {{ form_label(form.maxCo2) }}
+                            {{ form_widget(form.maxCo2) }}
+                            {{ form_help(form.maxCo2) }}
+                            {{ form_errors(form.maxCo2) }}
+                        </div>
+
+                        <div class="form-group">
+                            {{ form_label(form.maxNoise) }}
+                            {{ form_widget(form.maxNoise) }}
+                            {{ form_help(form.maxNoise) }}
+                            {{ form_errors(form.maxNoise) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ path('device_index') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+                </div>
+            {{ form_end(form) }}
+
+            <div class="danger-zone">
+                <h3>⚠️ Danger Zone</h3>
+                <p>Once you delete a device, all associated sensor readings will be removed. This action cannot be undone.</p>
+                <form method="post" action="{{ path('device_delete', {id: device.id}) }}" 
+                      onsubmit="return confirm('Are you sure you want to delete this device? This will remove all sensor readings!');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ device.id) }}">
+                    <button type="submit" class="btn btn-danger">Delete Device</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

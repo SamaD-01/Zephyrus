@@ -89,7 +89,7 @@ class MqttSubscribeCommand extends Command
                     
                     $maxCo2 = $device->getMaxCo2() ?? 1000;
                     $maxTemp = $device->getMaxTemperature() ?? 30;
-                    $minTemp = $device->getMinTemperature() ?? 0;
+                    $minTemp = $device->getMinTemperature() ?? 10;
                     $maxNoise = $device->getMaxNoise() ?? 70;
 
                     if ($reading->getCo2() > $maxCo2) {

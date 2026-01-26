@@ -38,7 +38,7 @@ class SensorReading
     private ?User $user = null;
 
     #[ORM\ManyToOne(inversedBy: 'sensorReadings')]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?Device $device = null;
 
     public function getId(): ?int
