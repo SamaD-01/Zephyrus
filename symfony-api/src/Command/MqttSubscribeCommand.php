@@ -13,6 +13,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use App\Service\AlertService;
 
 #[AsCommand(
     name: 'mqtt:subscribe',
@@ -23,7 +24,8 @@ class MqttSubscribeCommand extends Command
     public function __construct(
         private EntityManagerInterface $entityManager,
         private UserRepository $userRepository,
-        private DeviceRepository $deviceRepository
+        private DeviceRepository $deviceRepository,
+        private AlertService $alertService
     ) {
         parent::__construct();
     }
@@ -35,7 +37,7 @@ class MqttSubscribeCommand extends Command
         $io->info('Connecting to MQTT broker at localhost:1883...');
 
         $mqtt = new MqttClient('127.0.0.1', 1883, 'symfony-subscriber');
-        
+
         $connectionSettings = (new ConnectionSettings())
             ->setKeepAliveInterval(60)
             ->setLastWillTopic('zephyrus/status')
@@ -61,7 +63,7 @@ class MqttSubscribeCommand extends Command
                     $deviceId = $data['deviceId'] ?? 'unknown';
 
                     $device = $this->deviceRepository->findOneBy(['deviceId' => $deviceId]);
-                    
+
                     if (!$device) {
                         $io->warning("Device '{$deviceId}' not registered. Please register it first at /devices/new");
                         return;
@@ -86,25 +88,16 @@ class MqttSubscribeCommand extends Command
                     $this->entityManager->flush();
 
                     $io->success("Saved reading from {$device->getName()} ({$deviceId})");
-                    
-                    $maxCo2 = $device->getMaxCo2() ?? 1000;
-                    $maxTemp = $device->getMaxTemperature() ?? 30;
-                    $minTemp = $device->getMinTemperature() ?? 10;
-                    $maxNoise = $device->getMaxNoise() ?? 70;
 
-                    if ($reading->getCo2() > $maxCo2) {
-                        $io->warning("HIGH CO2 LEVEL: {$reading->getCo2()} ppm (threshold: {$maxCo2} ppm)");
+                    $alerts = $this->alertService->checkThresholds($reading, $device);
+
+                    $io->writeln("Debug: Created " . count($alerts) . " alerts");
+
+                    foreach ($alerts as $alert) {
+                        $icon = $alert->getSeverityIcon();
+                        $io->warning("{$icon} ALERT: {$alert->getMessage()}");
+                        $io->writeln("Debug: Alert ID: " . ($alert->getId() ?? 'NOT PERSISTED'));
                     }
-                    if ($reading->getTemperature() > $maxTemp) {
-                        $io->warning("HIGH TEMPERATURE: {$reading->getTemperature()}°C (threshold: {$maxTemp}°C)");
-                    }
-                    if ($reading->getTemperature() < $minTemp) {
-                        $io->warning("LOW TEMPERATURE: {$reading->getTemperature()}°C (threshold: {$minTemp}°C)");
-                    }
-                    if ($reading->getNoise() > $maxNoise) {
-                        $io->warning("HIGH NOISE LEVEL: {$reading->getNoise()} dB (threshold: {$maxNoise} dB)");
-                    }
-                    
                 } catch (\Exception $e) {
                     $io->error('Error saving reading: ' . $e->getMessage());
                 }
